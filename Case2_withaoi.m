@@ -6,9 +6,8 @@ clc,clear;
 % values = [4,17,18,19,20,21];
 % T_Values = [1,5,7,35]; ,3,5,11,15,33,55,165
 
-% values = [6];
-values = [8];
-T_Values = [1,88];
+values = [4];
+T_Values = [1,12];
 
 tic
 for idx = 1:length(values)
@@ -18,12 +17,12 @@ for idx = 1:length(values)
     for t_idx = 1:length(T_Values)
         T = T_Values(t_idx);  % 取得當前 T 的值
 
-        p = 11;
-        q = 8;
-        r = 2;
+        p = 5;
+        r = 3;
         % 1. 讓使用者輸入想選幾個序列
-        se = 8;
-        sequences = [3,4,5,6,7,8,9,10];
+        se = 4;
+        q = ceil(2*se/r);
+        sequences = [3,4,5,6];
 
         % fprintf("T = %d / w = %d", T, w);
         % ✅ **每個 worker 內部都重新定義 `output_dir`**
@@ -81,11 +80,9 @@ for idx = 1:length(values)
 
         %% 跑loop
         ns = 100000;
-        % tt = zeros(1, se+1);
-        % td = zeros(1, se+1);
+        
         ta = zeros(1, se+1);
-        % sgfail = zeros(1, se+1);
-        % groupDelaySum = 0;
+       
 
         for m = 1:ns
             randomSgSet = cell(se, 1);
@@ -117,21 +114,12 @@ for idx = 1:length(values)
             for i = 1:se
                 sgSuccessCounts{i} = intersect(rboth-1, indexCell{sequences(i)});
 
-                %  if isempty(sgSuccessCounts{i})
-                %     sgfail(i) = sgfail(i) + 1;
-                % end
             end
 
             for i = 1:length(sgSuccessCounts)
                 if ~isempty(sgSuccessCounts{i})
                     first_value = sgSuccessCounts{i}(1);
 
-                    % tt(i) = tt(i) + length(sgSuccessCounts{i});
-                    % td(i) = td(i) + first_value;
-
-                    %  if first_value>groupDelayTmp
-                    %     groupDelayTmp = first_value;
-                    % end
 
                     one_Index = getOneIndextmp(sgSuccessCounts{i}, T, p, q);
                     second_group = one_Index + p*q;
@@ -154,7 +142,7 @@ for idx = 1:length(values)
                     ta(i) = ta(i) + AoI_average;
                 end
             end
-            % groupDelaySum = groupDelaySum + groupDelayTmp;
+            
 
 
         end
@@ -165,20 +153,11 @@ for idx = 1:length(values)
         % 儲存檔案到對應的資料夾
         filename = fullfile(T_folder, sprintf('%d結果%d.xlsx', T, w));
 
-        % ttavg = tt/tmpm;
-        % tdavg = td/ns;
+        
         taavg = ta/ns;
-        % sgfailavg = sgfail/ns;
-
-        % ttavg(length(ttavg))= sum(tt) / (se*tmpm);
-        % tdavg(length(tdavg))= sum(td) / (se*ns);
+        
         taavg(length(taavg))= sum(ta) / (se*ns);
-        % sgfailavg(length(sgfailavg))= sum(sgfail) / (se*ns);
-
-        % groupDelay = zeros(1, se+1);
-        % groupDelay(1)=groupDelaySum/ns;
-
-        % mat = [ttavg; tdavg; sgfailavg; groupDelay];
+        
         mat = taavg;
         writematrix(mat, filename);
     end
